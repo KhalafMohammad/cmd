@@ -1,0 +1,29 @@
+Week 3 challenging opdracht basis renderen in SDL2
+--------------------------------------------------
+
+1. Lees van hoofdstuk 6 van `C Handboek' van Kernighan & Ritchie de paragrafen 6.1 t/m 6.4, 6.7 en 6.8. Beantwoord de volgende vragen:
+
+a. Wat is het verschil tussen een struct en een union?
+b. Schrijf een stukje voorbeeldcode waarin je dezelfde structure MET en ZONDER typedef declareert en gebruikt.
+
+2. Installeer SDL2 op je Linux developmentmachine (sudo apt install libsdl2-dev). Jouw linux-machine beschikt natuurlijk over een X11 omgeving en een Window Manager (d.w.z. een grafische desktop). Na installatie compileer je `sdl1a.c' (zit als bijlage bij deze opdracht), als volgt:
+
+gcc -std=c99 -Wall -Wextra -Wpedantic -Wconversion -o sdl1a sdl1a.c -I/usr/include/SDL2 -D_REENTRANT -lSDL2
+
+Als dat niet werkt, vervang je "-I/usr/include/SDL2 -D_REENTRANT -lSDL2" door "`sdl2-config --cflags --libs`" (ja INCLUSIEF de backticks `...`). Als er dingen misgaan ga je alvorens te vragen eerst kijken op https://wiki.libsdl.org/Installation#Linux.2FUnix en met je foutmeldingen langs Stack Overflow.
+
+Draai het gecompileerde programma en kijk wat er gebeurt. Je zou een grafisch venster moeten zien openen van 1024x576 pixels met een lichtgrijs-blauwig achtergrondje. Natuurlijk ga je proberen om het kleurtje te wijzigen en de titel van het venster aan te passen, of misschien de resolutie. Bestudeer vervolgens de code en AL het commentaar. Volg de links naar de SDL-documentatie die in het commentaar zijn opgenomen. Beantwoord daarna de volgende vragen:
+
+a. Welk statement zorgt ervoor dat hetgeen in de backbuffer wordt voorbereid, daadwerkelijk in het window wordt getoond?
+b. Het if-statement op regel 188 leest: "if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)". Wat is het datatype van ...
+   - ... de expressie "event"?
+   - ... de expressie "event.key"?
+   - ... de expressie "event.key.keysym"?
+   - ... de expressie "event.key.keysym.scancode"?
+c. Wat is het verschil tussen SDL_SCANCODE_ESCAPE (een scancode) en SDLK_ESCAPE (een keycode)?
+
+3. Compileer nu `sdl1b.c' en draai het programma. Beweeg Greta met de pijltjestoetsen over het scherm. Bestudeer de code, de wijzigingen t.o.v. sdl1a.c zijn voorzien van commentaar. Maak nu de eindopdracht voor deze week: in regels 64 t/m 82 wordt Greta gerenderd. Je kunt daar zien dat het werkt met offsets die hardcoded zijn. Dat is in directe overtreding van een van de `course rules' -- hardcoded is niet generiek en dus verboden. Maak de code generiek. Om aan te tonen dat het je gelukt is deze bende op te ruimen maak je een array aan waar 10 NPC-koeien in zitten. Elke koe daarin moet een random beginpositie en random kleur hebben. Greta blijft in jouw programma altijd `de elfde koe' met een unieke bruine kleur, die door de speler te bedienen is. De NPC-koeien mogen stilstaan in de weide nadat ze voor het eerst zijn gerenderd.
+
+Tips: Je kunt bijvoorbeeld een functie maken die een hele koe rendert. En eentje die alle koeien in een array rendert. Nog een advies is het vastleggen van de offsets, die nodig zijn om een koe te tekenen, in #defines. En/of in een aparte struct.
+
+Het staat je vrij om je oplossing op geheel eigen wijze netjes te maken. De ideale `main()' is er een waar alleen maar function calls in staan die in hoog-over termen aangeven wat het programma doet. Voor deze opdracht scoor je maximaal als je een motivatie kunt geven voor je aanpassingen en de leesbaarheid van je oplossing. In commentaar kan dus worden teruggevonden waarom je het op deze wijze gedaan hebt. Neem je uiteindelijke broncode in zijn geheel op in de zip die je instuurt.
