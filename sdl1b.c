@@ -213,3 +213,273 @@ void onze_greta(koe array){
 	SDL_RenderFillRect(renderer, &rechterachterpoot);
 
 }
+
+
+//===============================================================================================
+
+
+
+/*
+
+ * File:   main.c
+
+ * Author: Sourav Gupta
+
+ *
+
+ * Created on 18 Dec 2018, 18:57
+
+ */
+
+ 
+
+/*
+
+ * Configuration Related settings. Specific for microcontroller unit.
+
+ */
+
+#pragma config FOSC = HS        // Oscillator Selection bits (HS oscillator)
+
+#pragma config WDTE = OFF       // Watchdog Timer Enable bit (WDT disabled)
+
+#pragma config PWRTE = OFF      // Power-up Timer Enable bit (PWRT disabled)
+
+#pragma config BOREN = ON       // Brown-out Reset Enable bit (BOR enabled)
+
+#pragma config LVP = OFF         // Low-Voltage (Single-Supply) In-Circuit Serial Programming Enable bit (RB3/PGM pin has PGM function; low-voltage programming enabled)
+
+#pragma config CPD = OFF        // Data EEPROM Memory Code Protection bit (Data EEPROM code protection off)
+
+#pragma config WRT = OFF        // Flash Program Memory Write Enable bits (Write protection off; all program memory may be written to by EECON control)
+
+#pragma config CP = OFF         // Flash Program Memory Code Protection bit (Code protection off)
+
+#define _XTAL_FREQ 20000000
+
+/*
+
+ * System Header files inclusions
+
+ */
+
+ 
+
+#include <xc.h>
+
+//#include <string.h>
+
+#include <stdlib.h>
+
+#include "supporting c files/lcd.h"
+
+ 
+
+#define Encoder_SW PORTDbits.RD2
+
+#define Encoder_DT PORTDbits.RD3
+
+#define Encoder_CLK PORTCbits.RC4
+
+ 
+
+/*
+
+ * Program flow related functions
+
+ */
+
+int counter; // It will hold the count of rotary encoder.
+
+int position; // It will store the rotary encoder position.
+
+void sw_delayms(unsigned int d);
+
+int value[7];
+
+ 
+
+/*
+
+ * System Init Function
+
+ */
+
+ 
+
+void system_init ();
+
+ 
+
+/* Main function single Thread*/
+
+void main(void) {
+
+    system_init();
+
+    lcd_puts ("Circuit Digest");
+
+    lcd_com(0xC0);
+
+    counter = 0;
+
+    while(1){
+
+        lcd_com(0xC0);
+
+        if (Encoder_SW == 0){
+
+            sw_delayms(20);
+
+            if (Encoder_SW == 0){
+
+                //lcd_com(1);
+
+                //lcd_com(0xC0);
+
+                lcd_puts ("switch pressed");
+
+//                itoa(counter, value, 10);
+
+//                lcd_puts(value);
+
+            }
+
+        }                       
+
+       if (Encoder_CLK != position){
+
+            if (Encoder_DT != position){
+
+               // lcd_com (0x01);
+
+                counter++;
+
+                lcd_com (0xC0);
+
+                lcd_puts("                ");
+
+                lcd_com (0xC0);
+
+                lcd_bcd(1,counter);
+
+            }
+
+            else{
+
+               // lcd_com (0x01);
+
+                lcd_com (0xC0);
+
+                counter--;
+
+                lcd_puts("                ");
+
+                lcd_com (0xC0);
+
+                lcd_bcd(1,counter);
+
+                //lcd_puts("Left");
+
+            }           
+
+        }
+
+        position = Encoder_CLK;                
+
+ 
+
+}
+
+ 
+
+    return;
+
+}
+
+ 
+
+void sw_delayms(unsigned int d){
+
+int x, y;
+
+for(x=0;x<d;x++)
+
+for(y=0;y<=1275;y++);
+
+}
+
+ 
+
+void system_init(){
+
+    TRISB = 0x00; // PORT B as output, This port is used for LCD    
+
+    TRISDbits.TRISD2 = 1;
+
+    TRISDbits.TRISD3 = 1;
+
+    TRISCbits.TRISC4 = 1;
+
+    lcd_init(); // This will Initialize the LCD
+
+    position = Encoder_CLK;// Sotred the CLK position on system init, before the while loop start.
+
+}
+
+//===============================================================================================================
+
+#include <xc.h>
+
+// Configuration settings for the PIC16F887
+#pragma config FOSC = HS    // High-speed crystal oscillator
+#pragma config WDTE = OFF   // Watchdog timer disabled
+#pragma config PWRTE = OFF  // Power-up timer disabled
+#pragma config BOREN = OFF  // Brown-out reset disabled
+#pragma config LVP = OFF    // Low-voltage programming disabled
+#pragma config CPD = OFF    // Data memory code protection disabled
+#pragma config WRT = OFF    // Flash memory write protection disabled
+#pragma config CP = OFF     // Flash memory code protection disabled
+
+#define ENCODER_A RB4
+#define ENCODER_B RB5
+
+#define LED1 RA0
+#define LED2 RA1
+#define LED3 RA2
+#define LED4 RA3
+
+volatile unsigned char encoderValue = 0; // Encoder value
+volatile unsigned char prevEncoderState = 0; // Previous encoder state
+
+void main() {
+    TRISB = 0b00110000; // Set RB4 and RB5 as inputs
+    TRISA = 0b00000000; // Set all RA pins as outputs
+
+    while (1) {
+        // Read the current state of RB4 and RB5 (the encoder channels)
+        unsigned char currentEncoderState = (PORTB >> 4) & 0x03;
+
+        // Determine the direction of rotation
+        if (currentEncoderState != prevEncoderState) {
+            if ((prevEncoderState == 0x00 && currentEncoderState == 0x01) || (prevEncoderState == 0x03 && currentEncoderState == 0x02)) {
+                encoderValue++;
+            } else if ((prevEncoderState == 0x01 && currentEncoderState == 0x00) || (prevEncoderState == 0x02 && currentEncoderState == 0x03)) {
+                encoderValue--;
+            }
+        }
+
+        // Update the previous state
+        prevEncoderState = currentEncoderState;
+
+        // Control the LEDs based on the encoder value
+        LED1 = (encoderValue & 0x01) ? 1 : 0;
+        LED2 = (encoderValue & 0x02) ? 1 : 0;
+        LED3 = (encoderValue & 0x04) ? 1 : 0;
+        LED4 = (encoderValue & 0x08) ? 1 : 0;
+
+        // Your main code here
+
+        // You can use the LEDs (LED1, LED2, LED3, LED4) to display the encoder value or any other status.
+    }
+}
